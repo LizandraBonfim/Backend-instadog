@@ -27,7 +27,6 @@ class ResetPassword {
         if (id === user.id) {
 
             user.password = password;
-            console.log('res4t dwejfçewj', password)
 
             if (password) {
                 user.password = await this.hashProvider.generate(password);

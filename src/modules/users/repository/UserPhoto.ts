@@ -6,41 +6,37 @@ import Comments from '../models/Comments';
 class UserPhoto {
 
     private ormRepositoryAvatar: Repository<Photos>;
-    private ormRepositoryUser: Repository<User>;
     private ormRepositoryComments: Repository<Comments>;
 
     constructor() {
         this.ormRepositoryAvatar = getRepository(Photos);
-        this.ormRepositoryUser = getRepository(User);
         this.ormRepositoryComments = getRepository(Comments);
     }
 
     public async execute(id: string): Promise<any> {
 
         const photoId = await this.ormRepositoryAvatar.findOne({
-            where: { id }
+            where: { id },
+            relations: ['user_id'],
+
         });
 
 
         if (!photoId) throw new Error('Foto não localizada.');
 
-        const userId = await this.ormRepositoryUser.findOne({
-            where: { id: photoId.user }
+        const userComments = await this.ormRepositoryComments.find({
+            where: { post: photoId.id },
+            relations: ['user_id'],
         });
 
-        if (!userId) throw new Error('Usuário não localizado.');
+        console.log(`coenss`, userComments)
 
-        const userComments = await this.ormRepositoryComments.findOne({
-            where: { post: photoId.id }
-        });
+        photoId.acessos = photoId.acessos + 1;
 
-
-        if (!userComments) throw new Error('Não ha comentaro para essa foto.');
-
+        this.ormRepositoryAvatar.update({ id: photoId.id }, { acessos: photoId.acessos });
 
         return {
             photoId,
-            userId,
             userComments
         }
     }

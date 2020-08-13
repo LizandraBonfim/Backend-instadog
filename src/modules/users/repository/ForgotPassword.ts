@@ -29,8 +29,6 @@ class ForgotPassword {
             throw new Error('Usuario nao encontrado');
         }
 
-        console.log('4');
-
 
         const { secret, expiresIn } = authTokenReset.jwt;
 
@@ -38,14 +36,6 @@ class ForgotPassword {
             subject: user.id,
             expiresIn,
         });
-
-        console.log('token', `http://localhost:3000/${token}`);
-
-        // const templateForgot = path.resolve(__dirname, '..', 'view', 'forgot_password.hbs');
-
-        // await this.mailProvider.sendMail({
-
-        // })
 
         return token;
 

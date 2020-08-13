@@ -18,38 +18,35 @@ class CommentsPost {
     }
 
 
-    public async postar(id: string, comment: string): Promise<any> {
+    public async postar(id: string, comment: string, idUsuarioLogado: string): Promise<any> {
 
         const comentario = new Comments();
 
 
-        const coment = await this.ormRepositoryAvatar.findOne({
+        const photo = await this.ormRepositoryAvatar.findOne({
             where: { id }
         });
 
-        if (!coment) throw new Error('Post não localizado.');
+        if (!photo) throw new Error('Post não localizado.');
 
 
         const user = await this.ormRepositoryUser.findOne({
-            where: { id: coment.user }
+            where: { id: idUsuarioLogado }
         });
 
         if (!user) throw new Error('Usuario não localizado.');
 
         comentario.comment = comment;
-        comentario.user = user.id;
+        comentario.user = idUsuarioLogado;
         comentario.post = id;
 
-        console.log('comentario', comentario.comment);
-        console.log('comentario', comentario.user);
-        console.log('comentario', comentario.post);
 
         const newComment = await this.ormRepositoryComments.create(comentario);
 
-        console.log('usuario salvo ? ', newComment)
-        await this.ormRepositoryComments.save(newComment);
+        const newComentUserLogado = await this.ormRepositoryComments.save(newComment);
+        newComentUserLogado.user_id = user;
 
-        return 'Comentario postado';
+        return newComentUserLogado;
 
 
     }
@@ -65,7 +62,6 @@ class CommentsPost {
         if (!idComments)
             throw new Error('Não existe id para esse comentario');
 
-        console.log(idComments);
 
         const user = await this.ormRepositoryUser.findOne({
             where: { id: idComments.user }

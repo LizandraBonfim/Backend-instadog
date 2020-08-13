@@ -30,7 +30,6 @@ class UpdateProfile {
         }
         const findNameExists = await this.ormRepository.findOne({ where: { name } });
 
-        console.log('dwejfelhf', findNameExists);
         if (findNameExists && findNameExists.id !== id) {
             throw new Error('Username ja esta em uso');
         }

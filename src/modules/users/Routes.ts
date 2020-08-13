@@ -2,6 +2,7 @@ import { Router, NextFunction, Request, Response } from 'express';
 import { createConnection } from 'typeorm';
 import { Joi, celebrate, Segments } from 'celebrate';
 import { verify } from 'jsonwebtoken';
+import multer from 'multer';
 import CreateUsersRepository from './repository/CreateUsersRepository';
 import Authenticate from './authenticate/Authenticate';
 import UpdateProfile from './repository/UpdateProfile';
@@ -9,13 +10,13 @@ import ForgotPassword from './repository/ForgotPassword';
 import authTokenReset from '../../config/authTokenReset';
 import Upload from '../../config/Upload';
 import ResetPassword from './repository/ResetPassword';
-import multer from 'multer';
 import ensureAuthenticate from './authenticate/EnsureAuthenticate';
 import PhotoPost from './service/PhotoPost';
 import CommentsPost from './repository/CommentsPost';
 import Feed from './repository/Feed';
 import FeedUserPhoto from './repository/UserPhoto';
 import FeedUser from './repository/FeedUser';
+import UserPhoto from './repository/UserPhoto';
 
 createConnection();
 
@@ -38,9 +39,11 @@ routerUsers.post('/users', celebrate({
 
         const createUsers = new CreateUsersRepository()
 
-        await createUsers.create(name, email, password);
+        const response = await createUsers.create(name, email, password);
 
-        res.status(201).json({ message: 'Conta criada' });
+        console.log('response', response)
+
+        res.status(201).json(response);
 
 
     } catch (error) {
@@ -131,7 +134,7 @@ routerUsers.post('/sessions', celebrate({
 
     } catch (error) {
 
-        return res.json({ message: error.message });
+        return res.status(403).json({ message: error.message });
 
     } finally {
         return next();
@@ -173,32 +176,28 @@ routerUsers.post('/reset/:id/token/:token', celebrate({
 
 });
 
-routerUsers.post('/post/:id', ensureAuthenticate, upload.single('avatar'),
+routerUsers.post('/post', upload.single('avatar'), ensureAuthenticate,
     async (req: Request, res: Response, next: NextFunction) => {
 
-
-
         try {
-            const { nome, idade, peso } = req.body;
 
-            console.log(nome, 'dhleflh', req.body)
+            const { nome, idade, peso } = req.body;
 
             const id = req.headers.id;
 
             if (!id) return res.json('Você não está logado.');
 
-
-
-
             const avatar = req.file.filename;
 
             const photoPost = new PhotoPost();
+
             await photoPost.postar({ id: String(id), avatar, idade, peso, nome });
+            console.log(photoPost);
 
             return res.status(201).json({ message: 'Enviado' });
 
         } catch (error) {
-            return res.json({ message: error });
+            return res.status(403).json({ message: 'Não foi possivel postar foto' });
         } finally {
             return next();
         }
@@ -226,13 +225,22 @@ routerUsers.post('/comments/:id', ensureAuthenticate, async (req: Request, res: 
 
     try {
         const { id } = req.params;
+
+        const idUsuarioLogado = req.headers.id as string;
+
+        console.log('Foto', id);
+
+        console.log('idUsuarioLogado', idUsuarioLogado)
+
         const { comment } = req.body;
+
+        console.log(`id ${id} : Coments ${comment}`)
 
         const comentario = new CommentsPost();
 
-        await comentario.postar(id, comment);
+        const lizandra = await comentario.postar(id, comment, idUsuarioLogado);
 
-        return res.status(200).json('Comentario postado');
+        return res.status(200).json(lizandra);
 
 
     } catch (error) {
@@ -264,20 +272,20 @@ routerUsers.delete('/comments/delete/:id', ensureAuthenticate, async (req: Reque
 
 routerUsers.get('/feed', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { page, items } = req.query;
+        const { page, items, user } = req.query;
 
         const newPage = Number(page);
         const newItem = Number(items);
 
         const feed = new Feed();
 
-        const pages = await feed.execute({ page: newPage, items: newItem });
+        const pages = await feed.execute({ page: newPage, items: newItem, user: user as string });
 
         return res.json(pages);
 
 
     } catch (error) {
-        return res.json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     } finally {
         return next();
     }
@@ -288,15 +296,15 @@ routerUsers.get('/feed/photo/:id', async (req: Request, res: Response, next: Nex
 
         const { id } = req.params;
 
-        const feedUserPost = new FeedUserPhoto();
+        const photo = new UserPhoto();
 
-        const user = await feedUserPost.execute(id);
+        const pages = await photo.execute(id);
 
-        return res.json(user);
+        return res.json(pages);
 
 
     } catch (error) {
-        return res.json({ message: error.message });
+        return res.status(403).json({ message: error.message });
     } finally {
         return next();
     }
@@ -319,7 +327,7 @@ routerUsers.get('/photos/user/:id', async (req: Request, res: Response, next: Ne
 
 
     } catch (error) {
-        return res.json({ message: error.message });
+        return res.status(403).json({ message: error.message });
     } finally {
         return next();
     }
@@ -337,15 +345,15 @@ routerUsers.get('/conta/myphotos', ensureAuthenticate, async (req: Request, res:
         const newPage = Number(page);
         const newItem = Number(items);
 
-        const feedUser = new FeedUser();
+        const feed = new Feed();
 
-        const user = await feedUser.execute(String(id), newPage, newItem);
+        const pages = await feed.execute({ page: newPage, items: newItem, user: id as string });
 
-        return res.json(user);
+        return res.json(pages);
 
 
     } catch (error) {
-        return res.json({ message: error.message });
+        return res.status(403).json({ message: error.message });
     } finally {
         return next();
     }

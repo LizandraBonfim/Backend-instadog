@@ -4,6 +4,7 @@ import Photos from '../models/Photos';
 interface Request {
     page: number;
     items: number;
+    user?: string;
 }
 
 class Feed {
@@ -14,20 +15,27 @@ class Feed {
         this.ormRepository = getRepository(Photos);
     }
 
-    public async execute({ page, items }: Request) {
+    public async execute({ page, items, user }: Request) {
 
-        const [result, total] = await this.ormRepository.findAndCount({
+        console.log(user)
+        if (!!!user) {
+            const [result,] = await this.ormRepository.findAndCount({
+                take: items,
+                skip: (page * items) - items,
+            });
+
+            return result;
+
+        }
+
+
+        const [result,] = await this.ormRepository.findAndCount({
             take: items,
-            skip: (page * items) - items
+            skip: (page * items) - items,
+            where: { user: user }
         });
 
-        console.log('page', (page * items) - items);
-        console.log('item', items);
-
-        return {
-            result,
-            total
-        }
+        return result;
     }
 
 }

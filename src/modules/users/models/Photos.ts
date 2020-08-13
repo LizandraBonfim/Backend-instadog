@@ -25,9 +25,9 @@ class Photos {
     @Column()
     user: string;
 
-    // @ManyToOne(() => User)
-    // @JoinColumn({ name: 'user' })
-    // user: User;
+    @ManyToOne(() => User)
+    @JoinColumn({ name: 'user' })
+    user_id: User;
 
 }
 

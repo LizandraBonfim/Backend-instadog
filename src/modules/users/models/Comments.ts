@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 import User from './User';
 
 @Entity('comments')
@@ -16,9 +16,9 @@ class Comments {
     @Column()
     post: string;
 
-    // @ManyToOne(() => User)
-    // @JoinColumn({ name: 'user' })
-    // user: User;
+    @OneToOne(() => User)
+    @JoinColumn({ name: 'user' })
+    user_id: User;
 
 }
 

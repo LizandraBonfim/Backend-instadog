@@ -29,14 +29,11 @@ class Authenticate {
     }
 
     public async execute({ email, password }: Request): Promise<Response> {
-        console.log('email senha', {
-            email, password
-        });
+
 
         const user = await this.ormRepository.findOne({ where: { email } });
 
 
-        console.log('usuarioo0', user);
 
         if (!user) {
             throw new Error('Dados incorretos, favor verificar.');
@@ -54,8 +51,6 @@ class Authenticate {
             subject: user.id,
             expiresIn,
         });
-
-        console.log('token', token)
 
         return { user, token };
     }

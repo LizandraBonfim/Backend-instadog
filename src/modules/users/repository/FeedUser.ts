@@ -1,7 +1,6 @@
 import { Repository, getRepository } from 'typeorm';
 import Photos from '../models/Photos';
 import User from '../models/User';
-import Feed from './Feed';
 
 class FeedUser {
 
@@ -30,6 +29,9 @@ class FeedUser {
         });
 
         if (!posts) throw new Error('Este usuario não existe');
+
+        delete user.password;
+
 
         return posts;
     }

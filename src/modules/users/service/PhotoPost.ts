@@ -31,8 +31,6 @@ class PhotoPost {
 
         if (!user)
             throw new Error('Para postar fotos, favor realizar logon');
-        console.log('idade ', idade, peso, nome);
-
 
         post.idade = idade;
         post.peso = peso;
@@ -42,10 +40,8 @@ class PhotoPost {
 
         const newPost = await this.ormRepositoryAvatar.create(post);
 
-        console.log('new post', newPost);
 
         const novoPost = await this.ormRepositoryAvatar.save(newPost);
-        console.log('usuario salvo ? ', newPost);
 
         return novoPost;
 
@@ -62,7 +58,6 @@ class PhotoPost {
         if (!userpost)
             throw new Error('Não existe id para essa foto');
 
-        console.log(userpost);
 
         const user = await this.ormRepositoryUser.findOne({
             where: { id: userpost.user }

@@ -11,21 +11,23 @@ class CreateUsersRepository {
 
         const findExistsEmail = await createUser.findByEmail(email);
 
+
         if (findExistsEmail)
             throw new Error('Já possui um usuario com esse email');
 
         const findExistsUsername = await createUser.findByName(name);
-
-        console.log('encontrado? ', findExistsUsername);
 
         if (findExistsUsername)
             throw new Error('Este username já esta em uso.');
 
 
         const user = await createUser.create(name, email, password);
-        console.log('user', user);
 
         await createUser.save(user);
+
+        delete user.password;
+
+        return user;
 
 
     }

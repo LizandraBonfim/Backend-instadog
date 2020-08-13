@@ -6,7 +6,7 @@ const tmpFolder = path.resolve(__dirname, '..', '..', 'uploads');
 
 export default {
     tmpFolder,
-    uploadFolders: path.resolve(tmpFolder, 'uploads'),
+    uploadFolders: path.resolve(tmpFolder),
 
     storage: multer.diskStorage({
         destination: tmpFolder,
