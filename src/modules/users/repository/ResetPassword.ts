@@ -21,7 +21,7 @@ class ResetPassword {
 
         if (!user) {
 
-            throw new Error('Usuário encontrado');
+            throw new Error('Usuário nao encontrado');
         }
 
         if (id === user.id) {

@@ -37,7 +37,8 @@ class ForgotPassword {
             expiresIn,
         });
 
-        return token;
+        console.log('user', user)
+        return { token, user };
 
 
 

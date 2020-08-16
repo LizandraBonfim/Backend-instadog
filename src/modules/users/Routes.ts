@@ -152,6 +152,8 @@ routerUsers.post('/reset/:id/token/:token', celebrate({
         const { id, token } = req.params;
         const { password } = req.body;
 
+        console.log(id, token)
+
         if (!token) return res.status(403).json({ message: 'Token invalido' });
 
         const reset = new ResetPassword();
@@ -313,15 +315,11 @@ routerUsers.get('/feed/photo/:id', async (req: Request, res: Response, next: Nex
 routerUsers.get('/photos/user/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
 
-        const { page, items } = req.query;
-
         const { id } = req.params;
-        const newPage = Number(page);
-        const newItem = Number(items);
 
         const feedUser = new FeedUser();
 
-        const user = await feedUser.execute(id, newPage, newItem);
+        const user = await feedUser.execute(id);
 
         return res.json(user);
 
