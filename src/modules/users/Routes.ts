@@ -14,7 +14,6 @@ import ensureAuthenticate from './authenticate/EnsureAuthenticate';
 import PhotoPost from './service/PhotoPost';
 import CommentsPost from './repository/CommentsPost';
 import Feed from './repository/Feed';
-import FeedUserPhoto from './repository/UserPhoto';
 import FeedUser from './repository/FeedUser';
 import UserPhoto from './repository/UserPhoto';
 
